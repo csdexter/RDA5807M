@@ -1,0 +1,27 @@
+Arduino RDA5807M Library
+
+This library is intended for use with the RDA Microelectronics RDA5807M
+single-chip broadcast FM radio receiver, as available on breakout boards
+including the 32768Hz quartz crystal.
+
+To the furthest extent that this is legally possible, the fork maintained by
+Radu - Eosif Mihailescu and published here https://github.com/csdexter/RDA5807M
+is hereby released under the LGPL version 3.
+To the furthest extent that this is legally enforceable, the copyright remains
+with the authors listed above.
+
+See the example sketches to learn how to use the library in your code.
+
+HARDWARE NOTES:
+ * The RDA5807M is a 3.3V I/O chip whereas the Arduino Uno/Mega are 5V I/O. This
+   means you will need to use a proper logic level shifter if you are trying to
+   use the Breakout Board version with the latter. On the same vein,
+   since the chip is I2C-only, you'll need a dedicated shifter such as the
+   SparkFun BOB-11955 to communicate with it from a 5V I/O device.
+ * Quick connection reference:
+   I2C Mode, RDA5807M -> Arduino:
+     SDIO      -> SDA     (Arduino bidirectional)
+     SCLK      -> SCL     (Arduino output)
+
+For general questions and updates on this library please contact the fork
+maintainer at <radu.mihailescu@linux360.ro>.
