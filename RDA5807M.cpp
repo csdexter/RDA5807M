@@ -12,4 +12,56 @@
  */
 
 #include "RDA5807M.h"
+#include "RDA5807M-private.h"
 
+#include <Wire.h>
+
+void RDA5807M::begin(byte band) {
+    Wire.begin();
+    setRegister(RDA5807M_REG_TUNING,
+                getRegister(RDA5807M_REG_TUNING) & ~RDA5807M_BAND_MASK | band);
+};
+
+void RDA5807M::setRegister(byte reg, const word value) {
+    Wire.beginTransmission(RDA5807M_I2C_ADDR_RANDOM);
+    Wire.write(reg);
+    Wire.write(highByte(value));
+    Wire.write(lowByte(value));
+    Wire.endTransmission(true);
+};
+
+word RDA5807M::getRegister(byte reg) {
+    word result;
+
+    Wire.beginTransmission(RDA5807M_I2C_ADDR_RANDOM);
+    Wire.write(reg);
+    Wire.endTransmission(false);
+    Wire.requestFrom(RDA5807M_I2C_ADDR_RANDOM, 2, true);
+    result = Wire.read() << 8;
+    result |= Wire.read();
+    Wire.endTransmission(true);
+
+    return result;
+};
+
+void RDA5807M::setRegisterBulk(byte count, const word regs[]) {
+    Wire.beginTransmission(RDA5807M_I2C_ADDR_SEQRDA);
+
+    for(byte i=0; i < count; i++) {
+        Wire.write(highByte(regs[i]));
+        Wire.write(lowByte(regs[i]));
+    };
+
+    Wire.endTransmission(true);
+};
+
+void getRegisterBulk(byte count, word regs[]) {
+    Wire.requestFrom(RDA5807M_I2C_ADDR_SEQRDA, count * 2, true);
+
+    for(byte i=0; i < count; i++) {
+        regs[count] = Wire.read() << 8;
+        regs[count] |= Wire.read();
+    };
+
+    Wire.endTransmission(true);
+};

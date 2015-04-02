@@ -19,14 +19,7 @@
 # include <WProgram.h>
 #endif
 
-#define RDA5807M_I2CADDR_SEQRDA (0x20 >> 1)
-#define RDA5807M_I2CADDR_RANDOM (0x22 >> 1)
-#define RDA5807M_I2CADDR_SEQTEA (0xC0 >> 1)
-
-#define RDA5807M_FIRST_REGISTER_WRITE 0x02
-#define RDA5807M_FIRST_REGISTER_READ 0x0A
-#define RDA5807M_LAST_REGISTER 0x3A
-
+//Register addresses
 #define RDA5807M_REG_CHIPID 0x00
 #define RDA5807M_REG_CONFIG 0x02
 #define RDA5807M_REG_TUNING 0x03
@@ -43,6 +36,7 @@
 #define RDA5807M_REG_RDSD 0x0F
 #define RDA5807M_REG_SEEK 0x20
 
+//Status bits (from the chip)
 #define RDA5807M_STATUS_RDSR 0x8000
 #define RDA5807M_STATUS_STC 0x4000
 #define RDA5807M_STATUS_SF 0x2000
@@ -50,6 +44,7 @@
 #define RDA5807M_STATUS_BLKE 0x0800
 #define RDA5807M_STATUS_ST 0x0400
 
+//Flag bits (to the chip)
 #define RDA5807M_FLG_DHIZ 0x8000
 #define RDA5807M_FLG_DMUTE 0x4000
 #define RDA5807M_FLG_MONO 0x2000
@@ -76,6 +71,7 @@
 #define RDA5807M_FLG_FMREADY word(0x0080)
 #define RDA5807M_FLG_BLOCKE word(0x0010)
 
+//Masks and constants for configuration parameters
 #define RDA5807M_CHIPID 0x58
 #define RDA5807M_CLKMODE_MASK word(0x0070)
 #define RDA5807M_CLKMODE_32K (0x0 << 4)
@@ -123,5 +119,39 @@
 #define RDA5807M_BLERB_12 word(0x0001)
 #define RDA5807M_BLERB_35 word(0x0002)
 #define RDA5807M_BLERB_U (RDA5807M_BLERB_12 | RDA5807M_BLERB_35)
+
+class RDA5807M
+{
+    public:
+        /*
+        * Description:
+        *   This is the constructor, it initializes internal data structures.
+        */
+        RDA5807M(void) {};
+
+        /*
+        * Description:
+        *   This is the destructor, it delegates to end().
+        */
+        ~RDA5807M() { end(); };
+
+        void end(void) {};
+
+        /*
+        * Description:
+        *   Initializes the RDA5807M, starts the radio and configures band
+        *   limits.
+        * Parameters:
+        *   band - The desired band limits, one of the RDA5807M_BAND_* 
+        *          constants.
+        */
+        void begin(byte band);
+
+        void setRegister(byte reg, const word value);
+        word getRegister(byte reg);
+
+        void setRegisterBulk(byte count, const word regs[]);
+        void getRegisterBulk(byte count, word regs[]);
+};
 
 #endif
