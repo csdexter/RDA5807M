@@ -18,8 +18,15 @@
 
 void RDA5807M::begin(byte band) {
     Wire.begin();
+    setRegister(RDA5807M_REG_CONFIG, RDA5807M_FLG_DHIZ | RDA5807M_FLG_DMUTE | 
+                RDA5807M_FLG_BASS | RDA5807M_FLG_SEEKUP | RDA5807M_FLG_RDS | 
+                RDA5807M_FLG_NEW | RDA5807M_FLG_ENABLE);
     setRegister(RDA5807M_REG_TUNING,
                 getRegister(RDA5807M_REG_TUNING) & ~RDA5807M_BAND_MASK | band);
+};
+
+void RDA5807M::end(void) {
+    setRegister(RDA5807M_REG_CONFIG, 0x00);
 };
 
 void RDA5807M::setRegister(byte reg, const word value) {

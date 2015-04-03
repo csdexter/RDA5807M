@@ -19,11 +19,4 @@
 #define RDA5807M_I2C_ADDR_RANDOM (0x22 >> 1)
 #define RDA5807M_I2C_ADDR_SEQTEA (0xC0 >> 1)
 
-//Register file origins for sequential mode
-#define RDA5807M_FIRST_REGISTER_WRITE 0x02
-#define RDA5807M_FIRST_REGISTER_READ 0x0A
-#define RDA5807M_LAST_REGISTER 0x3A
-
-
-
 #endif

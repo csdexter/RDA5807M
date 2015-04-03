@@ -19,6 +19,11 @@
 # include <WProgram.h>
 #endif
 
+//Register file origins for sequential mode
+#define RDA5807M_FIRST_REGISTER_WRITE 0x02
+#define RDA5807M_FIRST_REGISTER_READ 0x0A
+#define RDA5807M_LAST_REGISTER 0x3A
+
 //Register addresses
 #define RDA5807M_REG_CHIPID 0x00
 #define RDA5807M_REG_CONFIG 0x02
@@ -120,6 +125,75 @@
 #define RDA5807M_BLERB_35 word(0x0002)
 #define RDA5807M_BLERB_U (RDA5807M_BLERB_12 | RDA5807M_BLERB_35)
 
+typedef struct __attribute__ ((__packed__)) {
+    uint8_t disableHiZ:1;
+    uint8_t disableMute:1;
+    uint8_t mono:1;
+    uint8_t bass:1;
+    uint8_t rClkNotAlways:1;
+    uint8_t rClkInput:1;
+    uint8_t seekUp:1;
+    uint8_t seek:1;
+    uint8_t seekMode:1;
+    uint8_t clkMode:3;
+    uint8_t rds:1;
+    uint8_t newDemodulation:1;
+    uint8_t softReset:1;
+    uint8_t enable:1;
+    uint16_t channel:10;
+    uint8_t direct:1;
+    uint8_t tune:1;
+    uint8_t band:2;
+    uint8_t space:2;
+    uint8_t reserved1:4;
+    uint8_t deEmphasis:1;
+    uint8_t reserved2:1;
+    uint8_t softMute:1;
+    uint8_t afcDisable:1;
+    uint8_t reserved3;
+    uint8_t interruptMode:1;
+    uint8_t reserved4:3;
+    uint8_t seekThreshold:4;
+    uint8_t reserved5:4;
+    uint8_t volume:4;
+    uint8_t reserved6:1;
+    uint8_t openMode:2;
+    uint16_t reserved7:13;
+    uint8_t reserved8:1;
+    uint8_t softBlendThreshold:5;
+    uint8_t bandLimit65M:1;
+    uint8_t reserved9:1;
+    uint8_t seekThresholdOld:6;
+    uint8_t softBlend:1;
+    uint8_t frequencyMode:1;
+    uint16_t frequencyDirect;
+} TRDA5807MRegisterFileWrite;
+
+#define RDA5807M_SIZE_BULK_WRITE (sizeof(TRDA5807MRegisterFileWrite) / sizeof(word))
+
+typedef struct __attribute__ ((__packed__)) {
+    uint8_t rdsReady:1;
+    uint8_t seekTuneComplete:1;
+    uint8_t seekFail:1;
+    uint8_t rdsSynchronized:1;
+    uint8_t blockEFound:1;
+    uint8_t stereo:1;
+    uint16_t readChannel:10;
+    uint8_t rssi:7;
+    uint8_t isStation:1;
+    uint8_t ready:1;
+    uint8_t reserved1:2;
+    uint8_t blockE:1;
+    uint8_t blerA:2;
+    uint8_t blerB:2;
+    uint16_t rdsA;
+    uint16_t rdsB;
+    uint16_t rdsC;
+    uint16_t rdsD;
+} TRDA5807MRegisterFileRead;
+
+#define RDA5807M_SIZE_BULK_READ (sizeof(TRDA5807MRegisterFileRead) / sizeof(word))
+
 class RDA5807M
 {
     public:
@@ -135,7 +209,11 @@ class RDA5807M
         */
         ~RDA5807M() { end(); };
 
-        void end(void) {};
+        /*
+        * Description:
+        *   Mutes and disables the chip.
+        */
+        void end(void);
 
         /*
         * Description:
@@ -147,9 +225,30 @@ class RDA5807M
         */
         void begin(byte band);
 
-        void setRegister(byte reg, const word value);
+        /*
+        * Description:
+        *   Getter and setter for single random access to registers.
+        * Parameters:
+        *   reg - byte, register to get or set, one of the RDA5807M_REG_* 
+        *         constants.
+        *   value - word, value to set the given register to.
+        * Returns:
+        *   word, current value of given register.
+        */
+        void setRegister(byte reg, word value);
         word getRegister(byte reg);
 
+        /*
+        * Description:
+        *   Getter and setter for bulk sequential access to registers. Gets
+        *   always start at RDA5807M_FIRST_REGISTER_READ while sets always
+        *   start at RDA5807M_FIRST_REGISTER_WRITE. The RDA5807M register file
+        *   has exactly RDA5807M_LAST_REGISTER word-sized entries.
+        * Parameters:
+        *   count - byte, how many sequential registers to get/set.
+        *   regs - word[], will be filled with the values of the got registers
+        *          or will be the source of the values for the set registers.
+        */
         void setRegisterBulk(byte count, const word regs[]);
         void getRegisterBulk(byte count, word regs[]);
 };
