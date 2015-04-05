@@ -28,10 +28,10 @@
 #define RDA5807M_REG_CHIPID 0x00
 #define RDA5807M_REG_CONFIG 0x02
 #define RDA5807M_REG_TUNING 0x03
-#define RDA5807M_REG_PARAMS1 0x04
-#define RDA5807M_REG_PARAMS2 0x05
-#define RDA5807M_REG_OPEN 0x06
-#define RDA5807M_REG_PARAMS3 0x07
+#define RDA5807M_REG_GPIO 0x04
+#define RDA5807M_REG_VOLUME 0x05
+#define RDA5807M_REG_I2S 0x06
+#define RDA5807M_REG_BLEND 0x07
 #define RDA5807M_REG_FREQ 0x08
 #define RDA5807M_REG_STATUS 0x0A
 #define RDA5807M_REG_RSSI 0x0B
@@ -78,6 +78,14 @@
 #define RDA5807P_FLG_STCIEN 0x4000
 #define RDA5807P_FLG_I2S word(0x0040)
 #define RDA5807P_FLG_I2SSLAVE 0x1000
+#define RDA5807P_FLG_SWLR 0x0800
+#define RDA5807P_FLG_SCLKINVERT_I 0x0400
+#define RDA5807P_FLG_SIGNED 0x0200
+#define RDA5807P_FLG_WSINVERT_I 0x0100
+#define RDA5807P_FLG_WSINVERT_O word(0x0008)
+#define RDA5807P_FLG_SCLKINVERT_O word(0x0004)
+#define RDA5807P_FLG_DELAY_L word(0x0002)
+#define RDA5807P_FLG_DELAY_R word(0x0001)
 
 //Masks and constants for configuration parameters
 #define RDA5807M_CHIPID 0x58
@@ -202,13 +210,19 @@ typedef struct __attribute__ ((__packed__)) {
     uint8_t reserved5:1;
     uint8_t openMode:2;
     uint8_t i2sMode:1;
-    uint8_t reserved6:4;
+    uint8_t wsIsRight:1;
+    uint8_t invertSclkInput:1;
+    uint8_t signedData:1;
+    uint8_t invertWsInput:1;
     uint8_t i2sSampleRate:4;
-    uint16_t reserved7:4;
-    uint8_t reserved8:1;
+    uint8_t invertWsOutput:1;
+    uint8_t invertSclkOutput:1;
+    uint8_t delayLeft:1;
+    uint8_t delayRight:1;
+    uint8_t reserved6:1;
     uint8_t softBlendThreshold:5;
     uint8_t bandLimit65M:1;
-    uint8_t reserved9:1;
+    uint8_t reserved7:1;
     uint8_t seekThresholdOld:6;
     uint8_t softBlend:1;
     uint8_t frequencyMode:1;
