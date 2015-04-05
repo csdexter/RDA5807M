@@ -75,6 +75,8 @@
 #define RDA5807M_FLG_FMTRUE 0x0100
 #define RDA5807M_FLG_FMREADY word(0x0080)
 #define RDA5807M_FLG_BLOCKE word(0x0010)
+#define RDA5807P_FLG_STCIEN 0x4000
+#define RDA5807P_FLG_I2S word(0x0040)
 
 //Masks and constants for configuration parameters
 #define RDA5807M_CHIPID 0x58
@@ -89,16 +91,16 @@
 #define RDA5807M_CHAN_MASK 0xFFC0
 #define RDA5807M_CHAN_SHIFT 6
 #define RDA5807M_BAND_MASK word(0x000C)
-#define RDA5807M_BAND_WEST 0x0
-#define RDA5807M_BAND_JAPAN 0x1
-#define RDA5807M_BAND_WORLD 0x2
-#define RDA5807M_BAND_EAST 0x3
+#define RDA5807M_BAND_WEST (0x0 << 2)
+#define RDA5807M_BAND_JAPAN (0x1 << 2)
+#define RDA5807M_BAND_WORLD (0x2 << 2)
+#define RDA5807M_BAND_EAST (0x3 << 2)
 #define RDA5807M_SPACE_MASK word(0x0003)
 #define RDA5807M_SPACE_100K 0x0
 #define RDA5807M_SPACE_200K 0x1
 #define RDA5807M_SPACE_50K 0x2
 #define RDA5807M_SPACE_25K 0x3
-#define RDA5807M_SEEKTH_MASK 0x0F00
+#define RDA5807M_SEEKTH_MASK 0x7F00
 #define RDA5807M_SEEKTH_SHIFT 8
 #define RDA5807M_VOLUME_MASK word(0x000F)
 #define RDA5807M_VOLUME_SHIFT 0
@@ -124,6 +126,30 @@
 #define RDA5807M_BLERB_12 word(0x0001)
 #define RDA5807M_BLERB_35 word(0x0002)
 #define RDA5807M_BLERB_U (RDA5807M_BLERB_12 | RDA5807M_BLERB_35)
+#define RDA5807P_GPIO3_MASK word(0x0030)
+#define RDA5807P_GPIO3_HIZ (0x0 << 4)
+#define RDA5807P_GPIO3_ST (0x1 << 4)
+#define RDA5807P_GPIO3_L (0x2 << 4)
+#define RDA5807P_GPIO3_H (0x3 << 4)
+#define RDA5807P_GPIO2_MASK word(0x000C)
+#define RDA5807P_GPIO2_HIZ (0x0 << 2)
+#define RDA5807P_GPIO2_INT (0x1 << 2)
+#define RDA5807P_GPIO2_L (0x2 << 2)
+#define RDA5807P_GPIO2_H (0x3 << 2)
+#define RDA5807P_GPIO1_MASK word(0x0003)
+#define RDA5807P_GPIO1_HIZ 0x0
+#define RDA5807P_GPIO1_L 0x2
+#define RDA5807P_GPIO1_H 0x3
+#define RDA5807P_LNAP_MASK word(0x00C0)
+#define RDA5807P_LNAP_NONE (0x0 << 6)
+#define RDA5807P_LNAP_N (0x1 << 6)
+#define RDA5807P_LNAP_P (0x2 << 6)
+#define RDA5807P_LNAP_BOTH (0x3 << 6)
+#define RDA5807P_LNAI_MASK word(0x0030)
+#define RDA5807P_LNAI_1_8M (0x0 << 4)
+#define RDA5807P_LNAI_2_1M (0x1 << 4)
+#define RDA5807P_LNAI_2_5M (0x2 << 4)
+#define RDA5807P_LNAI_3_0M (0x3 << 4)
 
 typedef struct __attribute__ ((__packed__)) {
     uint8_t disableHiZ:1;
@@ -145,24 +171,30 @@ typedef struct __attribute__ ((__packed__)) {
     uint8_t tune:1;
     uint8_t band:2;
     uint8_t space:2;
-    uint8_t reserved1:4;
+    uint8_t reserved1:1;
+    uint8_t stcInterruptEnable:1;
+    uint8_t reserved2:2;
     uint8_t deEmphasis:1;
-    uint8_t reserved2:1;
+    uint8_t reserved3:1;
     uint8_t softMute:1;
     uint8_t afcDisable:1;
-    uint8_t reserved3;
+    uint8_t reserved4:1;
+    uint8_t i2s:1;
+    uint8_t gpio3:2;
+    uint8_t gpio2:2;
+    uint8_t gpio1:2;
     uint8_t interruptMode:1;
-    uint8_t reserved4:3;
-    uint8_t seekThreshold:4;
-    uint8_t reserved5:4;
+    uint8_t seekThreshold:7;
+    uint8_t lnaPort:2;
+    uint8_t lnaCurrent:2;
     uint8_t volume:4;
-    uint8_t reserved6:1;
+    uint8_t reserved5:1;
     uint8_t openMode:2;
-    uint16_t reserved7:13;
-    uint8_t reserved8:1;
+    uint16_t reserved6:13;
+    uint8_t reserved7:1;
     uint8_t softBlendThreshold:5;
     uint8_t bandLimit65M:1;
-    uint8_t reserved9:1;
+    uint8_t reserved8:1;
     uint8_t seekThresholdOld:6;
     uint8_t softBlend:1;
     uint8_t frequencyMode:1;
@@ -182,7 +214,7 @@ typedef struct __attribute__ ((__packed__)) {
     uint8_t rssi:7;
     uint8_t isStation:1;
     uint8_t ready:1;
-    uint8_t reserved1:2;
+    uint8_t reserved:2;
     uint8_t blockE:1;
     uint8_t blerA:2;
     uint8_t blerB:2;
@@ -193,6 +225,9 @@ typedef struct __attribute__ ((__packed__)) {
 } TRDA5807MRegisterFileRead;
 
 #define RDA5807M_SIZE_BULK_READ (sizeof(TRDA5807MRegisterFileRead) / sizeof(word))
+
+extern const byte RDA5807M_BandLimits[][2];
+extern const byte RDA5807M_ChannelSpacings[];
 
 class RDA5807M
 {
@@ -229,14 +264,25 @@ class RDA5807M
         * Description:
         *   Getter and setter for single random access to registers.
         * Parameters:
-        *   reg - byte, register to get or set, one of the RDA5807M_REG_* 
-        *         constants.
-        *   value - word, value to set the given register to.
+        *   reg   - register to get or set, one of the RDA5807M_REG_* constants.
+        *   value - value to set the given register to.
         * Returns:
-        *   word, current value of given register.
+        *   current value of given register.
         */
         void setRegister(byte reg, word value);
         word getRegister(byte reg);
+
+        /*
+        * Description:
+        *   Read-before-write setter for single random access to registers.
+        * Parameters:
+        *   reg   - register to update, one of the RDA5807M_REG_* constants.
+        *   mask  - mask of the bits that are to be updated.
+        *   value - value to set the given register and bits to.
+        */
+        void updateRegister(byte reg, word mask, word value) {
+            setRegister(reg, getRegister(reg) & ~mask | value);
+        };
 
         /*
         * Description:
@@ -245,12 +291,80 @@ class RDA5807M
         *   start at RDA5807M_FIRST_REGISTER_WRITE. The RDA5807M register file
         *   has exactly RDA5807M_LAST_REGISTER word-sized entries.
         * Parameters:
-        *   count - byte, how many sequential registers to get/set.
-        *   regs - word[], will be filled with the values of the got registers
-        *          or will be the source of the values for the set registers.
+        *   count - how many sequential registers to get/set.
+        *   regs  - will be filled with the values of the got registers or will
+        *           be the source of the values for the set registers.
         */
         void setRegisterBulk(byte count, const word regs[]);
         void getRegisterBulk(byte count, word regs[]);
+
+        /*
+        * Description:
+        *   Increase the volume by 1. If the maximum volume has been
+        *   reached, no further increase will take place and returns false;
+        *   otherwise true.
+        */
+        bool volumeUp(void);
+
+        /*
+        * Description:
+        *   Decrease the volume by 1. If the minimum volume has been
+        *   reached, no further decrease will take place and returns false;
+        *   otherwise true.
+        * Parameters:
+        *   alsoMute - mute the output when reaching minimum volume, in
+        *              addition to returning false
+        */
+        bool volumeDown(bool alsoMute = false);
+
+        /*
+        * Description:
+        *   Commands the radio to seek up to the next valid channel.
+        * Parameters:
+        *   wrap - set to true to allow the seek to wrap around the current
+        *          band.
+        */
+        void seekUp(bool wrap = true);
+
+        /*
+        * Description:
+        *   Commands the radio to seek down to the next valid channel.
+        * Parameters:
+        *   wrap - set to true to allow the seek to wrap around the current
+        *          band.
+        */
+        void seekDown(bool wrap = true);
+
+        /*
+        * Description:
+        *   Mutes the audio output.
+        */
+        void mute(void);
+
+        /*
+        * Description:
+        *   Unmutes the audio output.
+        * Parameters:
+        *   minVolume - set the volume to minimum value before unmuting if true,
+        *               otherwise leave it untouched causing the chip to blast
+        *               audio out at whatever the previous volume level was.
+        */
+        void unMute(bool minVolume = false);
+
+        /*
+        * Description:
+        *   Gets the frequency the chip is currently tuned to.
+        * Returns:
+        *   frequency in 10kHz units.
+        */
+        word getFrequency(void);
+
+        /*
+        * Description:
+        *   Retrieves the Received Signal Strength Indication measurement for
+        *   the currently tuned station.
+        */
+        byte getRSSI(void);
 };
 
 #endif
