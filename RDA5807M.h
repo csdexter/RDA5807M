@@ -77,6 +77,7 @@
 #define RDA5807M_FLG_BLOCKE word(0x0010)
 #define RDA5807P_FLG_STCIEN 0x4000
 #define RDA5807P_FLG_I2S word(0x0040)
+#define RDA5807P_FLG_I2SSLAVE 0x1000
 
 //Masks and constants for configuration parameters
 #define RDA5807M_CHIPID 0x58
@@ -150,6 +151,16 @@
 #define RDA5807P_LNAI_2_1M (0x1 << 4)
 #define RDA5807P_LNAI_2_5M (0x2 << 4)
 #define RDA5807P_LNAI_3_0M (0x3 << 4)
+#define RDA5807P_I2SRATE_MASK word(0x00F0)
+#define RDA5807P_I2SRATE_8K (0x0 << 4)
+#define RDA5807P_I2SRATE_11_025K (0x1 << 4)
+#define RDA5807P_I2SRATE_12K (0x2 << 4)
+#define RDA5807P_I2SRATE_16K (0x3 << 4)
+#define RDA5807P_I2SRATE_22_05K (0x4 << 4)
+#define RDA5807P_I2SRATE_24K (0x5 << 4)
+#define RDA5807P_I2SRATE_32K (0x6 << 4)
+#define RDA5807P_I2SRATE_44_1K (0x7 << 4)
+#define RDA5807P_I2SRATE_48K (0x8 << 4)
 
 typedef struct __attribute__ ((__packed__)) {
     uint8_t disableHiZ:1;
@@ -190,11 +201,14 @@ typedef struct __attribute__ ((__packed__)) {
     uint8_t volume:4;
     uint8_t reserved5:1;
     uint8_t openMode:2;
-    uint16_t reserved6:13;
-    uint8_t reserved7:1;
+    uint8_t i2sMode:1;
+    uint8_t reserved6:4;
+    uint8_t i2sSampleRate:4;
+    uint16_t reserved7:4;
+    uint8_t reserved8:1;
     uint8_t softBlendThreshold:5;
     uint8_t bandLimit65M:1;
-    uint8_t reserved8:1;
+    uint8_t reserved9:1;
     uint8_t seekThresholdOld:6;
     uint8_t softBlend:1;
     uint8_t frequencyMode:1;

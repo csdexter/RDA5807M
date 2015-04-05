@@ -2,8 +2,9 @@ Arduino RDA5807M Library
 
 This library is intended for use with the RDA Microelectronics RDA5807M
 single-chip broadcast FM radio receiver, as available on breakout boards
-including the 32768Hz quartz crystal. The RDA5807P is a very similar chip
-with a compatible register file, this library should work with that one too.
+including the 32768Hz quartz crystal. Other chips in the family, such as
+the RDA5807P or RDA5807HS, have a compatible register file and this library
+should work with all of them.
 
 To the furthest extent that this is legally possible, the fork maintained by
 Radu - Eosif Mihailescu and published here https://github.com/csdexter/RDA5807M
