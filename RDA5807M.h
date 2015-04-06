@@ -39,6 +39,7 @@
 #define RDA5807M_REG_RDSB 0x0D
 #define RDA5807M_REG_RDSC 0x0E
 #define RDA5807M_REG_RDSD 0x0F
+#define RDA5800_REG_LNA 0x10
 #define RDA5807M_REG_SEEK 0x20
 
 //Status bits (from the chip)
@@ -48,6 +49,7 @@
 #define RDA5807M_STATUS_RDSS 0x1000
 #define RDA5807M_STATUS_BLKE 0x0800
 #define RDA5807M_STATUS_ST 0x0400
+#define RDA5800_STATUS_ST 0x0100
 
 //Flag bits (to the chip)
 #define RDA5807M_FLG_DHIZ 0x8000
@@ -86,8 +88,12 @@
 #define RDA5807P_FLG_SCLKINVERT_O word(0x0004)
 #define RDA5807P_FLG_DELAY_L word(0x0002)
 #define RDA5807P_FLG_DELAY_R word(0x0001)
+#define RDA5800_FLG_SPACE_200K word(0x0001)
+#define RDA5800_FLG_SPACE_50K word(0x0004)
+#define RDA5800_FLG_BAND_JAPAN word(0x0002)
 
 //Masks and constants for configuration parameters
+//NOTE: the entire family, including the RDA5800, all report the same ChipID.
 #define RDA5807M_CHIPID 0x58
 #define RDA5807M_CLKMODE_MASK word(0x0070)
 #define RDA5807M_CLKMODE_32K (0x0 << 4)
@@ -169,6 +175,12 @@
 #define RDA5807P_I2SRATE_32K (0x6 << 4)
 #define RDA5807P_I2SRATE_44_1K (0x7 << 4)
 #define RDA5807P_I2SRATE_48K (0x8 << 4)
+#define RDA5800_VOLUMEDSP_MASK word(0x00F0)
+#define RDA5800_VOLUMEDSP_SHIFT 4
+#define RDA5800_LNAP_MASK 0x6000
+#define RDA5800_LNAP_N (0x1 << 13)
+#define RDA5800_LNAP_P (0x2 << 13)
+#define RDA5800_LNAP_BOTH (0x3 << 13)
 
 typedef struct __attribute__ ((__packed__)) {
     uint8_t disableHiZ:1;
@@ -185,11 +197,27 @@ typedef struct __attribute__ ((__packed__)) {
     uint8_t newDemodulation:1;
     uint8_t softReset:1;
     uint8_t enable:1;
-    uint16_t channel:10;
+    union {
+        uint16_t channel:10;
+        struct {
+            uint8_t channel5800;
+            uint8_t reserved5800_1:2;
+        };
+    };
     uint8_t direct:1;
     uint8_t tune:1;
-    uint8_t band:2;
-    uint8_t space:2;
+    union {
+        struct {
+            uint8_t band:2;
+            uint8_t space:2;
+        };
+        struct {
+            uint8_t reserved5800_2:1;
+            uint8_t space50kHz:1;
+            uint8_t band5800:1;
+            uint8_t space5800:1;
+        };
+    };
     uint8_t reserved1:1;
     uint8_t stcInterruptEnable:1;
     uint8_t reserved2:2;
@@ -204,8 +232,13 @@ typedef struct __attribute__ ((__packed__)) {
     uint8_t gpio1:2;
     uint8_t interruptMode:1;
     uint8_t seekThreshold:7;
-    uint8_t lnaPort:2;
-    uint8_t lnaCurrent:2;
+    union {
+      struct {
+          uint8_t lnaPort:2;
+          uint8_t lnaCurrent:2;
+      };
+      uint8_t volumeDSP:4;
+    };
     uint8_t volume:4;
     uint8_t reserved5:1;
     uint8_t openMode:2;
@@ -238,7 +271,14 @@ typedef struct __attribute__ ((__packed__)) {
     uint8_t rdsSynchronized:1;
     uint8_t blockEFound:1;
     uint8_t stereo:1;
-    uint16_t readChannel:10;
+    union {
+        uint16_t readChannel:10;
+        struct {
+            uint8_t reserved5800_3:1;
+            uint8_t stereo5800:1;
+            uint8_t readChannel5800;
+        };
+    };
     uint8_t rssi:7;
     uint8_t isStation:1;
     uint8_t ready:1;
