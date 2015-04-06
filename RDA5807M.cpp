@@ -73,21 +73,21 @@ void getRegisterBulk(byte count, word regs[]) {
 };
 
 bool RDA5807M::volumeUp(void) {
-    byte volume = getRegister(RDA5807M_REG_PARAMS2) & RDA5807M_VOLUME_MASK;
+    byte volume = getRegister(RDA5807M_REG_VOLUME) & RDA5807M_VOLUME_MASK;
 
     if (volume == RDA5807M_VOLUME_MASK)
         return false;
     else {
-        updateRegister(RDA5807M_REG_PARAMS2, RDA5807M_VOLUME_MASK, volume + 1);
+        updateRegister(RDA5807M_REG_VOLUME, RDA5807M_VOLUME_MASK, volume + 1);
         return true;
     };
 };
 
 bool RDA5807M::volumeDown(bool alsoMute) {
-    byte volume = getRegister(RDA5807M_REG_PARAMS2) & RDA5807M_VOLUME_MASK;
+    byte volume = getRegister(RDA5807M_REG_VOLUME) & RDA5807M_VOLUME_MASK;
 
     if (volume) {
-        updateRegister(RDA5807M_REG_PARAMS2, RDA5807M_VOLUME_MASK, volume - 1);
+        updateRegister(RDA5807M_REG_VOLUME, RDA5807M_VOLUME_MASK, volume - 1);
         return true;
     } else {
         if (alsoMute)
@@ -120,7 +120,7 @@ void RDA5807M::mute(void) {
 
 void RDA5807M::unMute(bool minVolume) {
     if (minVolume)
-        updateRegister(RDA5807M_REG_PARAMS2, RDA5807M_VOLUME_MASK, 0x1);
+        updateRegister(RDA5807M_REG_VOLUME, RDA5807M_VOLUME_MASK, 0x1);
     updateRegister(RDA5807M_REG_CONFIG, RDA5807M_FLG_DMUTE, RDA5807M_FLG_DMUTE);
 };
 
