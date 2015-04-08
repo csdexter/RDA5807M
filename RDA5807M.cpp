@@ -43,7 +43,8 @@ word RDA5807M::getRegister(byte reg) {
     Wire.write(reg);
     Wire.endTransmission(false);
     Wire.requestFrom(RDA5807M_I2C_ADDR_RANDOM, 2, true);
-    result = Wire.read() << 8;
+    //Don't let gcc play games on us, enforce order of execution.
+    result = (word)Wire.read() << 8;
     result |= Wire.read();
     Wire.endTransmission(true);
 
@@ -61,15 +62,40 @@ void RDA5807M::setRegisterBulk(byte count, const word regs[]) {
     Wire.endTransmission(true);
 };
 
-void getRegisterBulk(byte count, word regs[]) {
+void RDA5807M::getRegisterBulk(byte count, word regs[]) {
     Wire.requestFrom(RDA5807M_I2C_ADDR_SEQRDA, count * 2, true);
 
     for(byte i=0; i < count; i++) {
-        regs[count] = Wire.read() << 8;
+        //Don't let gcc play games on us, enforce order of execution.
+        regs[count] = (word)Wire.read() << 8;
         regs[count] |= Wire.read();
     };
 
     Wire.endTransmission(true);
+};
+
+void RDA5807M::setRegisterBulk(const TRDA5807MRegisterFileWrite *regs) {
+    uint8_t *ptr = (uint8_t *)regs;
+
+    Wire.beginTransmission(RDA5807M_I2C_ADDR_SEQRDA);
+
+    for(byte i=0; i < sizeof(TRDA5807MRegisterFileWrite); i++)
+        Wire.write(ptr[i]);
+
+    Wire.endTransmission(true);
+};
+
+void RDA5807M::getRegisterBulk(TRDA5807MRegisterFileRead *regs) {
+    uint8_t *ptr = (uint8_t *)regs;
+
+    Wire.requestFrom(RDA5807M_I2C_ADDR_SEQRDA,
+                     sizeof(TRDA5807MRegisterFileRead), true);
+
+    for(byte i=0; i < sizeof(TRDA5807MRegisterFileRead); i++)
+        ptr[i] = Wire.read();
+
+    Wire.endTransmission(true);
+
 };
 
 bool RDA5807M::volumeUp(void) {

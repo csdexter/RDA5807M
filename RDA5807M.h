@@ -132,14 +132,14 @@
 #define RDA5807M_RSSI_MASK 0xFE00
 #define RDA5807M_RSSI_SHIFT 9
 #define RDA5807M_BLERA_MASK word(0x000C)
-#define RDA5807M_BLERA_0 word(0x0000)
-#define RDA5807M_BLERA_12 word(0x0004)
-#define RDA5807M_BLERA_35 word(0x0008)
+#define RDA5807M_BLERA_0 (0x0 << 2)
+#define RDA5807M_BLERA_12 (0x1 << 2)
+#define RDA5807M_BLERA_35 (0x2 << 2)
 #define RDA5807M_BLERA_U (RDA5807M_BLERA_12 | RDA5807M_BLERA_35)
 #define RDA5807M_BLERB_MASK word(0x0003)
-#define RDA5807M_BLERB_0 word(0x0000)
-#define RDA5807M_BLERB_12 word(0x0001)
-#define RDA5807M_BLERB_35 word(0x0002)
+#define RDA5807M_BLERB_0 0x0
+#define RDA5807M_BLERB_12 0x1
+#define RDA5807M_BLERB_35 0x2
 #define RDA5807M_BLERB_U (RDA5807M_BLERB_12 | RDA5807M_BLERB_35)
 #define RDA5807P_GPIO3_MASK word(0x0030)
 #define RDA5807P_GPIO3_HIZ (0x0 << 4)
@@ -182,6 +182,13 @@
 #define RDA5800_LNAP_P (0x2 << 13)
 #define RDA5800_LNAP_BOTH (0x3 << 13)
 
+//DO NOT USE (begin) -----------------------------------------------------------
+//
+//One day, avr-gcc will take its role seriously and allow a way to enforce
+//struct packing order, because it's a very common idiom in the embedded world
+//and because the standard allows the implementation to define it.
+//Until then, the beautiful structs below are nothing but an exercise in C
+//calligraphy.
 typedef struct __attribute__ ((__packed__)) {
     uint8_t disableHiZ:1;
     uint8_t disableMute:1;
@@ -262,8 +269,6 @@ typedef struct __attribute__ ((__packed__)) {
     uint16_t frequencyDirect;
 } TRDA5807MRegisterFileWrite;
 
-#define RDA5807M_SIZE_BULK_WRITE (sizeof(TRDA5807MRegisterFileWrite) / sizeof(word))
-
 typedef struct __attribute__ ((__packed__)) {
     uint8_t rdsReady:1;
     uint8_t seekTuneComplete:1;
@@ -291,8 +296,7 @@ typedef struct __attribute__ ((__packed__)) {
     uint16_t rdsC;
     uint16_t rdsD;
 } TRDA5807MRegisterFileRead;
-
-#define RDA5807M_SIZE_BULK_READ (sizeof(TRDA5807MRegisterFileRead) / sizeof(word))
+//DO NOT USE (end)--------------------------------------------------------------
 
 extern const byte RDA5807M_BandLimits[][2];
 extern const byte RDA5807M_ChannelSpacings[];
@@ -365,6 +369,19 @@ class RDA5807M
         */
         void setRegisterBulk(byte count, const word regs[]);
         void getRegisterBulk(byte count, word regs[]);
+
+//DO NOT USE (begin) -----------------------------------------------------------
+        /*
+        * Description:
+        *   Overloaded versions of the above, for use with the memory mapped
+        *   register file structs. This is needed because Arduino and RDS5807M
+        *   differ in endianness and so to maintain the correspondence between
+        *   struct fields and the actual values transferred, you need to process
+        *   the memory mapped struct byte-wise.
+        */
+        void setRegisterBulk(const TRDA5807MRegisterFileWrite *regs);
+        void getRegisterBulk(TRDA5807MRegisterFileRead *regs);
+//DO NOT USE (end) -------------------------------------------------------------
 
         /*
         * Description:
