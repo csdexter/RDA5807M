@@ -109,14 +109,13 @@ bool RDA5807M::volumeDown(bool alsoMute) {
 
     if (volume) {
         updateRegister(RDA5807M_REG_VOLUME, RDA5807M_VOLUME_MASK, volume - 1);
-        return true;
-    } else {
-        if (alsoMute)
+        if(!(volume - 1) && alsoMute)
             //If we are to trust the datasheet, this is superfluous as a volume
             //of zero triggers mute & HiZ on its own.
             mute();
+        return true;
+    } else 
         return false;
-    };
 };
 
 void RDA5807M::seekUp(bool wrap) {
