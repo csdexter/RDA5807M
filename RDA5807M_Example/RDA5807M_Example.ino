@@ -12,7 +12,7 @@
 * The board should be connected to a 3.3V Arduino's I2C interface.
 * Alternatively, a 5V Arduino can be used if a proper I2C level translator is
 * used (see the README for an example).
-* You will need an audio amplifier as the RDA5807M too weak to directly drive
+* You will need an audio amplifier as the RDA5807M is too weak to directly drive
 * a pair of headphones. Immediate candidates would be a pair of active
 * (multimedia) speakers that you're probably already using with your computer.
 * You will also need a proper antenna connected to breakout board. Luckily
@@ -38,13 +38,13 @@
 *
 */
 
-//Due to a bug in Arduino, these need to be included here too/first
+//Due to a bug in Arduino, this needs to be included here too/first
 #include <Wire.h>
 
 //Add the RDA5807M Library to the sketch.
 #include <RDA5807M.h>
 
-//Create an instance of the Si4735 named radio
+//Create an instance of the RDA5807M named radio
 RDA5807M radio;
 //Other variables we will use below
 char command;
