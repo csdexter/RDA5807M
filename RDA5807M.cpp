@@ -46,7 +46,6 @@ word RDA5807M::getRegister(byte reg) {
     //Don't let gcc play games on us, enforce order of execution.
     result = (word)Wire.read() << 8;
     result |= Wire.read();
-    Wire.endTransmission(true);
 
     return result;
 };
@@ -70,8 +69,6 @@ void RDA5807M::getRegisterBulk(byte count, word regs[]) {
         regs[count] = (word)Wire.read() << 8;
         regs[count] |= Wire.read();
     };
-
-    Wire.endTransmission(true);
 };
 
 void RDA5807M::setRegisterBulk(const TRDA5807MRegisterFileWrite *regs) {
@@ -93,8 +90,6 @@ void RDA5807M::getRegisterBulk(TRDA5807MRegisterFileRead *regs) {
 
     for(byte i=0; i < sizeof(TRDA5807MRegisterFileRead); i++)
         ptr[i] = Wire.read();
-
-    Wire.endTransmission(true);
 
 };
 
