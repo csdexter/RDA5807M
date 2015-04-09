@@ -72,7 +72,7 @@ void RDA5807M::getRegisterBulk(byte count, word regs[]) {
 };
 
 void RDA5807M::setRegisterBulk(const TRDA5807MRegisterFileWrite *regs) {
-    uint8_t *ptr = (uint8_t *)regs;
+    const uint8_t * const ptr = (uint8_t *)regs;
 
     Wire.beginTransmission(RDA5807M_I2C_ADDR_SEQRDA);
 
@@ -83,7 +83,7 @@ void RDA5807M::setRegisterBulk(const TRDA5807MRegisterFileWrite *regs) {
 };
 
 void RDA5807M::getRegisterBulk(TRDA5807MRegisterFileRead *regs) {
-    uint8_t *ptr = (uint8_t *)regs;
+    uint8_t * const ptr = (uint8_t *)regs;
 
     Wire.requestFrom(RDA5807M_I2C_ADDR_SEQRDA,
                      sizeof(TRDA5807MRegisterFileRead), true);
@@ -94,7 +94,7 @@ void RDA5807M::getRegisterBulk(TRDA5807MRegisterFileRead *regs) {
 };
 
 bool RDA5807M::volumeUp(void) {
-    byte volume = getRegister(RDA5807M_REG_VOLUME) & RDA5807M_VOLUME_MASK;
+    const byte volume = getRegister(RDA5807M_REG_VOLUME) & RDA5807M_VOLUME_MASK;
 
     if (volume == RDA5807M_VOLUME_MASK)
         return false;
@@ -105,7 +105,7 @@ bool RDA5807M::volumeUp(void) {
 };
 
 bool RDA5807M::volumeDown(bool alsoMute) {
-    byte volume = getRegister(RDA5807M_REG_VOLUME) & RDA5807M_VOLUME_MASK;
+    const byte volume = getRegister(RDA5807M_REG_VOLUME) & RDA5807M_VOLUME_MASK;
 
     if (volume) {
         updateRegister(RDA5807M_REG_VOLUME, RDA5807M_VOLUME_MASK, volume - 1);
@@ -146,7 +146,6 @@ void RDA5807M::unMute(bool minVolume) {
 };
 
 const byte RDA5807M_BandLowerLimits[5] PROGMEM = { 8700, 7600, 7600, 6500, 5000 };
-
 const byte RDA5807M_ChannelSpacings[4] PROGMEM = { 100, 200, 50, 25 };
 
 word RDA5807M::getFrequency(void) {
@@ -156,18 +155,18 @@ word RDA5807M::getFrequency(void) {
     //Separate channel spacing
     const byte space = band & RDA5807M_SPACE_MASK;
   
-    //Move band code in place
-    band >>= 2;
-
-    if (bandConfig & RDA5807M_BAND_MASK == RDA5807M_BAND_MASK && 
+    if (band & RDA5807M_BAND_MASK == RDA5807M_BAND_MASK && 
         !(getRegister(RDA5807M_REG_BLEND) & RDA5807M_FLG_EASTBAND65M))
         //Lower band limit is 50MHz
-        band++;
+        band = (band >> 2) + 1;
+    else
+        band >>= 2;
 
-    return (word)pgm_read_byte(&RDA5807M_BandLimits[band]) + frequency *
+    return (word)pgm_read_byte(&RDA5807M_BandLowerLimits[band]) + frequency *
         pgm_read_byte(&RDA5807M_ChannelSpacings[space]) / 10;
 };
 
 byte RDA5807M::getRSSI(void) {
     return (getRegister(RDA5807M_REG_RSSI) & RDA5807M_RSSI_MASK) >> RDA5807M_RSSI_SHIFT;
 };
+
