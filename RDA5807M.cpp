@@ -144,7 +144,7 @@ void RDA5807M::unMute(bool minVolume) {
     updateRegister(RDA5807M_REG_CONFIG, RDA5807M_FLG_DMUTE, RDA5807M_FLG_DMUTE);
 };
 
-const byte RDA5807M_BandLowerLimits[5] PROGMEM = { 8700, 7600, 7600, 6500, 5000 };
+const word RDA5807M_BandLowerLimits[5] PROGMEM = { 8700, 7600, 7600, 6500, 5000 };
 const byte RDA5807M_ChannelSpacings[4] PROGMEM = { 100, 200, 50, 25 };
 
 word RDA5807M::getFrequency(void) {
@@ -153,7 +153,7 @@ word RDA5807M::getFrequency(void) {
                                                     RDA5807M_SPACE_MASK);
     //Separate channel spacing
     const byte space = band & RDA5807M_SPACE_MASK;
-  
+
     if (band & RDA5807M_BAND_MASK == RDA5807M_BAND_MASK && 
         !(getRegister(RDA5807M_REG_BLEND) & RDA5807M_FLG_EASTBAND65M))
         //Lower band limit is 50MHz
@@ -161,7 +161,7 @@ word RDA5807M::getFrequency(void) {
     else
         band >>= 2;
 
-    return (word)pgm_read_byte(&RDA5807M_BandLowerLimits[band]) + frequency *
+    return pgm_read_word(&RDA5807M_BandLowerLimits[band]) + frequency *
         pgm_read_byte(&RDA5807M_ChannelSpacings[space]) / 10;
 };
 

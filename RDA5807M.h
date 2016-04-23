@@ -298,7 +298,7 @@ typedef struct __attribute__ ((__packed__)) {
 } TRDA5807MRegisterFileRead;
 //DO NOT USE (end)--------------------------------------------------------------
 
-extern const byte RDA5807M_BandLowerLimits[];
+extern const word RDA5807M_BandLowerLimits[];
 extern const byte RDA5807M_ChannelSpacings[];
 
 class RDA5807M
