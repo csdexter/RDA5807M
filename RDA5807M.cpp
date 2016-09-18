@@ -145,24 +145,60 @@ void RDA5807M::unMute(bool minVolume) {
 };
 
 const word RDA5807M_BandLowerLimits[5] PROGMEM = { 8700, 7600, 7600, 6500, 5000 };
+const word RDA5807M_BandHigherLimits[5] PROGMEM = { 10800, 9100, 10800, 7600, 6500 };
 const byte RDA5807M_ChannelSpacings[4] PROGMEM = { 100, 200, 50, 25 };
 
-word RDA5807M::getFrequency(void) {
-    const word frequency = getRegister(RDA5807M_REG_STATUS) & RDA5807M_READCHAN_MASK;
+word RDA5807M::getBandAndSpacing(void) {
     byte band = getRegister(RDA5807M_REG_TUNING) & (RDA5807M_BAND_MASK |
                                                     RDA5807M_SPACE_MASK);
     //Separate channel spacing
     const byte space = band & RDA5807M_SPACE_MASK;
 
-    if (band & RDA5807M_BAND_MASK == RDA5807M_BAND_MASK && 
+    if (band & RDA5807M_BAND_MASK == RDA5807M_BAND_EAST && 
         !(getRegister(RDA5807M_REG_BLEND) & RDA5807M_FLG_EASTBAND65M))
         //Lower band limit is 50MHz
-        band = (band >> 2) + 1;
+        band = (band >> RDA5807M_BAND_SHIFT) + 1;
     else
-        band >>= 2;
+        band >>= RDA5807M_BAND_SHIFT;
 
-    return pgm_read_word(&RDA5807M_BandLowerLimits[band]) + frequency *
-        pgm_read_byte(&RDA5807M_ChannelSpacings[space]) / 10;
+    return word(space, band);
+};
+
+word RDA5807M::getFrequency(void) {
+    const word spaceandband = getBandAndSpacing();
+
+    return pgm_read_word(&RDA5807M_BandLowerLimits[lowByte(spaceandband)]) +
+        (getRegister(RDA5807M_REG_STATUS) & RDA5807M_READCHAN_MASK) *
+        pgm_read_byte(&RDA5807M_ChannelSpacings[highByte(spaceandband)]) / 10;
+};
+
+bool RDA5807M::setFrequency(word frequency) {
+    const word spaceandband = getBandAndSpacing();
+    const word origin = pgm_read_word(
+        &RDA5807M_BandLowerLimits[lowByte(spaceandband)]);
+
+    //Check that specified frequency falls within our current band limits
+    if (frequency < origin ||
+        frequency > pgm_read_word(
+            &RDA5807M_BandHigherLimits[lowByte(spaceandband)]))
+        return false;
+
+    //Adjust start offset
+    frequency -= origin;
+
+    const byte spacing = pgm_read_byte(
+        &RDA5807M_ChannelSpacings[highByte(spaceandband)]);
+
+    //Check that the given frequency can be tuned given current channel spacing
+    if (frequency * 10 % spacing)
+        return false;
+
+    //Attempt to tune to the requested frequency
+    updateRegister(RDA5807M_REG_TUNING, RDA5807M_CHAN_MASK,
+                   (frequency * 10 / spacing) << RDA5807M_CHAN_SHIFT);
+    updateRegister(RDA5807M_REG_TUNING, RDA5807M_FLG_TUNE, RDA5807M_FLG_TUNE);
+
+    return true;
 };
 
 byte RDA5807M::getRSSI(void) {

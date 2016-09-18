@@ -106,6 +106,7 @@
 #define RDA5807M_CHAN_MASK 0xFFC0
 #define RDA5807M_CHAN_SHIFT 6
 #define RDA5807M_BAND_MASK word(0x000C)
+#define RDA5807M_BAND_SHIFT 2
 #define RDA5807M_BAND_WEST (0x0 << 2)
 #define RDA5807M_BAND_JAPAN (0x1 << 2)
 #define RDA5807M_BAND_WORLD (0x2 << 2)
@@ -128,7 +129,6 @@
 #define RDA5807M_SEEKMODE_MASK 0x7000
 #define RDA5807M_SEEKMODE_OLD (0x1 << 12)
 #define RDA5807M_READCHAN_MASK 0x03FF
-#define RDA5807M_READCHAN_SHIFT 0
 #define RDA5807M_RSSI_MASK 0xFE00
 #define RDA5807M_RSSI_SHIFT 9
 #define RDA5807M_BLERA_MASK word(0x000C)
@@ -299,6 +299,7 @@ typedef struct __attribute__ ((__packed__)) {
 //DO NOT USE (end)--------------------------------------------------------------
 
 extern const word RDA5807M_BandLowerLimits[];
+extern const word RDA5807M_BandHigherLimits[];
 extern const byte RDA5807M_ChannelSpacings[];
 
 class RDA5807M
@@ -446,10 +447,27 @@ class RDA5807M
 
         /*
         * Description:
+        *   Tells the chip to tune to the given frequency if within the
+        *   currently configured band limits and returns true, otherwise false.
+        * Parameters:
+        *   frequency - the frequency to tune to, in 10kHz units.
+        */
+        bool setFrequency(word frequency);
+
+
+        /*
+        * Description:
         *   Retrieves the Received Signal Strength Indication measurement for
         *   the currently tuned station.
         */
         byte getRSSI(void);
+
+    private:
+        /*
+        * Description:
+        *   Returns the currently configured FM band and channel spacing.
+        */
+        word getBandAndSpacing(void);
 };
 
 #endif
