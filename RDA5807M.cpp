@@ -194,9 +194,9 @@ bool RDA5807M::setFrequency(word frequency) {
         return false;
 
     //Attempt to tune to the requested frequency
-    updateRegister(RDA5807M_REG_TUNING, RDA5807M_CHAN_MASK,
-                   (frequency * 10 / spacing) << RDA5807M_CHAN_SHIFT);
-    updateRegister(RDA5807M_REG_TUNING, RDA5807M_FLG_TUNE, RDA5807M_FLG_TUNE);
+    updateRegister(RDA5807M_REG_TUNING, RDA5807M_CHAN_MASK | RDA5807M_FLG_TUNE,
+                   ((frequency * 10 / spacing) << RDA5807M_CHAN_SHIFT) |
+                   RDA5807M_FLG_TUNE);
 
     return true;
 };
