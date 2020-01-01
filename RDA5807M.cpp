@@ -93,6 +93,15 @@ void RDA5807M::getRegisterBulk(TRDA5807MRegisterFileRead *regs) {
 
 };
 
+bool RDA5807M::setVolume(byte volume) {
+    if (volume > 15)
+        return false;
+    else {
+	updateRegister(RDA5807M_REG_VOLUME, RDA5807M_VOLUME_MASK, volume);
+     	return true;
+    };
+};
+
 bool RDA5807M::volumeUp(void) {
     const byte volume = getRegister(RDA5807M_REG_VOLUME) & RDA5807M_VOLUME_MASK;
 
