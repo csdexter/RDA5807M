@@ -42,7 +42,7 @@ word RDA5807M::getRegister(byte reg) {
     Wire.beginTransmission(RDA5807M_I2C_ADDR_RANDOM);
     Wire.write(reg);
     Wire.endTransmission(false);
-    Wire.requestFrom(RDA5807M_I2C_ADDR_RANDOM, 2, true);
+    Wire.requestFrom(RDA5807M_I2C_ADDR_RANDOM, (size_t)2, true);
     //Don't let gcc play games on us, enforce order of execution.
     result = (word)Wire.read() << 8;
     result |= Wire.read();
@@ -62,7 +62,7 @@ void RDA5807M::setRegisterBulk(byte count, const word regs[]) {
 };
 
 void RDA5807M::getRegisterBulk(byte count, word regs[]) {
-    Wire.requestFrom(RDA5807M_I2C_ADDR_SEQRDA, count * 2, true);
+    Wire.requestFrom(RDA5807M_I2C_ADDR_SEQRDA, (size_t)(count * 2), true);
 
     for(byte i=0; i < count; i++) {
         //Don't let gcc play games on us, enforce order of execution.
