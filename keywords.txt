@@ -1,0 +1,23 @@
+# Syntax highlighting for Arduino IDE
+
+# Constructs / Destructs
+RDA5807M	KEYWORD1
+~RDA5807M	KEYWORD1
+
+# Methods / Functions
+end	KEYWORD2
+begin	KEYWORD2
+setRegister	KEYWORD2
+getRegister	KEYWORD2
+updateRegister	KEYWORD2
+setRegisterBulk	KEYWORD2
+getRegisterBulk	KEYWORD2
+volumeUp	KEYWORD2
+volumeDown	KEYWORD2
+seekUp	KEYWORD2
+seekDown	KEYWORD2
+mute	KEYWORD2
+unMute	KEYWORD2
+getFrequency	KEYWORD2
+setFrequency	KEYWORD2
+getRSSI	KEYWORD2
