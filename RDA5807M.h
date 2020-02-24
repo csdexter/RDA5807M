@@ -386,6 +386,14 @@ class RDA5807M
 
         /*
         * Description:
+        *   Set the volume to a define value
+        *   if value > 15 returns false;
+        *   otherwise true.
+        */
+        bool volumeUp(byte);
+
+        /*
+        * Description:
         *   Increase the volume by 1. If the maximum volume has been
         *   reached, no further increase will take place and returns false;
         *   otherwise true.
